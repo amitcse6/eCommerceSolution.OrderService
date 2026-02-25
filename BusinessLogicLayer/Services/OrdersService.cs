@@ -5,7 +5,7 @@ using eCommerce.OrdersMicroservice.DataAccessLayer.RepositoryContracts;
 using FluentValidation;
 using FluentValidation.Results;
 using MongoDB.Driver;
-using eCommerce.OrdersMicroservice.BusinessLogicLayer.ServiceContracts;
+using OrdersMicroservice.API.Entities;
 
 namespace eCommerce.OrdersMicroservice.BusinessLogicLayer.Services;
 

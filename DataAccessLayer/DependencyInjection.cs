@@ -3,11 +3,6 @@ using eCommerce.OrdersMicroservice.DataAccessLayer.RepositoryContracts;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using MongoDB.Driver;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace eCommerce.OrderMicroservice.DataAccessLayer;
 

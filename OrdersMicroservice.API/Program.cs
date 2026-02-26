@@ -1,11 +1,13 @@
 using FluentValidation.AspNetCore;
 using OrdersMicroservice.API.Middleware;
+using eCommerce.OrderMicroservice.DataAccessLayer;
+using eCommerce.OrderMicroservice.BusinessLogicLayer;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add DAL and BLL services to the container.
-//builder.Services.AddDataAccessLayer(builder.Configuration);
-//builder.Services.AddBusinessLogicLayer(builder.Configuration);
+builder.Services.AddDataAccessLayer(builder.Configuration);
+builder.Services.AddBusinessLogicLayer(builder.Configuration);
 
 // Add Controllers
 builder.Services.AddControllers();

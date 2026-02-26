@@ -9,6 +9,7 @@ using MongoDB.Driver;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -20,7 +21,7 @@ public static class DependencyInjection
     {
         services.AddValidatorsFromAssemblyContaining<OrderAddRequestValidator>();
 
-        services.AddAutoMapper(cfg => cfg.AddProfile<OrderAddRequestToOrderMappingProfile>());
+        services.AddAutoMapper(Assembly.GetExecutingAssembly());
 
         services.AddScoped<IOrdersService, OrdersService>();
         return services;

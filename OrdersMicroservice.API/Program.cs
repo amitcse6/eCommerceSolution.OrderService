@@ -7,6 +7,9 @@ var builder = WebApplication.CreateBuilder(args);
 //builder.Services.AddDataAccessLayer(builder.Configuration);
 //builder.Services.AddBusinessLogicLayer(builder.Configuration);
 
+// Add Controllers
+builder.Services.AddControllers();
+
 // Fluent validation
 builder.Services.AddFluentValidationAutoValidation();
 
@@ -36,10 +39,7 @@ app.UseCors();
 app.UseSwagger();
 app.UseSwaggerUI();
 
-// Auth
 app.UseHttpsRedirection();
-app.UseAuthentication();
-app.UseAuthorization();
 
 app.MapControllers();
 

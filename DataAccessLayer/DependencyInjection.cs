@@ -13,7 +13,7 @@ public static class DependencyInjection
         string connectionStringTemplate = configuration.GetConnectionString("MongoDB")!;
         
         string mongoHost = Environment.GetEnvironmentVariable("MONGODB_HOST") ?? "localhost";
-        string mongoPort = Environment.GetEnvironmentVariable("MONGODB_PORT") ?? "27018";
+        string mongoPort = Environment.GetEnvironmentVariable("MONGODB_PORT") ?? "27017";
         
         string connectionString = connectionStringTemplate
             .Replace("$MONGO_HOST", mongoHost)

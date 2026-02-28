@@ -11,7 +11,7 @@ services:
       - MONGODB_PORT=27017
       - MONGODB_DATABASE=OrdersDatabase
       - UsersMicroserviceName=users-microservice
-      - UsersMicroservicePort=5000
+      - UsersMicroservicePort=9090
     ports:
       - "7000:8080"
     networks:
@@ -23,7 +23,7 @@ services:
   mongodb-container:
      image: mongo:latest
      ports:
-       - "27017:27017"
+       - "27018:27017"
      volumes:
        - ./../eCommerceSolution.ProductsService/Solution Items/ecommerce/ordersdb:/docker-entrypoint-initdb.d
      networks:
@@ -61,7 +61,7 @@ services:
   users-microservice:
     image: users-microservice:latest
     environment:
-      - ASPNETCORE_HTTP_PORTS=8080
+      - ASPNETCORE_HTTP_PORTS=9090
       - ASPNETCORE_HTTP_ENVIRONMENT=Development
       - POSTGRES_HOST=postgres-container
       - POSTGRES_PORT=5432
@@ -69,22 +69,23 @@ services:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=Bjit@1234567
     ports:
-      - "5000:8080"
+      - "5000:9090"
     networks:
       - users-postgres-network
       - ecommerce-network
     depends_on:
       - postgres-container
+
   postgres-container:
     image: postgres:18.1
     environment:
       - POSTGRES_USER=postgres
-       - POSTGRES_PASSWORD=Bjit@1234567
-       - POSTGRES_DB=eCommerceUsers
+      - POSTGRES_DB=eCommerceUsers
+      - POSTGRES_PASSWORD=Bjit@1234567
     ports:
       - "5433:5432"
     volumes:
-      - ./../eCommerceSolution.UserService/Solution Items/ecommerce/postgres-init:/docker-entrypoint-initdb.d
+      - ./../eCommerceSolution.ProductsService/Solution Items/ecommerce/postgres-init:/docker-entrypoint-initdb.d
     networks:
       - users-postgres-network
 

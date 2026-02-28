@@ -11,12 +11,12 @@ public class OrderItem
     [BsonRepresentation(MongoDB.Bson.BsonType.String)]
     public Guid ProductID { get; set; }
 
-    [BsonRepresentation(MongoDB.Bson.BsonType.Double)]
+    [BsonRepresentation(MongoDB.Bson.BsonType.Decimal128)]
     public decimal UnitPrice { get; set; }
 
     [BsonRepresentation(MongoDB.Bson.BsonType.Int32)]
     public int Quantity { get; set; }
 
-    [BsonRepresentation(MongoDB.Bson.BsonType.Double)]
+    [BsonRepresentation(MongoDB.Bson.BsonType.Decimal128)]
     public decimal TotalPrice { get; set; }
 }

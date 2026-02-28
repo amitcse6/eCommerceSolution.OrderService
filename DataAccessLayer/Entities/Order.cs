@@ -18,7 +18,7 @@ public class Order
     [BsonRepresentation(MongoDB.Bson.BsonType.String)]
     public DateTime OrderDate { get; set; }
 
-    [BsonRepresentation(MongoDB.Bson.BsonType.Double)]
+    [BsonRepresentation(MongoDB.Bson.BsonType.Decimal128)]
     public decimal TotalBill { get; set; }
 
     public List<OrderItem> OrderItems { get; set; } = new List<OrderItem>();

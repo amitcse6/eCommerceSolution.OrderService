@@ -6,7 +6,7 @@
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development",
         "MONGODB_HOST": "localhost",
-        "MONGODB_PORT": "27017",
+        "MONGODB_PORT": "27018",
         "MONGODB_DATABASE": "OrdersDatabase",
         "UsersMicroserviceName": "localhost",
         "UsersMicroservicePort": "7186"
@@ -21,7 +21,7 @@
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development",
         "MONGODB_HOST": "localhost",
-        "MONGODB_PORT": "27017",
+        "MONGODB_PORT": "27018",
         "MONGODB_DATABASE": "OrdersDatabase",
         "UsersMicroserviceName": "localhost",
         "UsersMicroservicePort": "7186"

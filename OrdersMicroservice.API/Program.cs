@@ -23,11 +23,12 @@ builder.Services.AddSwaggerGen();
 // CORS
 builder.Services.AddCors(options =>
 {
-    options.AddDefaultPolicy(builder =>
+    options.AddDefaultPolicy(policyBuilder =>
     {
-        builder.WithOrigins("http://localhost:4200")
+        policyBuilder.WithOrigins("http://localhost:4200")
                .AllowAnyMethod()
-               .AllowAnyHeader();
+               .AllowAnyHeader()
+               .AllowCredentials();
     });
 });
 
@@ -45,14 +46,13 @@ var app = builder.Build();
 
 // Configure the HTTP request pipeline.
 app.UseExceptionHandlingMiddleware();
-app.UseRouting();
 
 app.UseCors();
 
+app.UseRouting();
+
 app.UseSwagger();
 app.UseSwaggerUI();
-
-app.UseHttpsRedirection();
 
 app.MapControllers();
 

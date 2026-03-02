@@ -1,4 +1,5 @@
 ﻿using BusinessLogicLayer.DTO;
+using eCommerce.OrdersMicroservice.BusinessLogicLayer.DTO;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,20 +9,20 @@ using System.Threading.Tasks;
 
 namespace BusinessLogicLayer.HttpClients;
 
-public class UserMicroserviceClient
+public class ProductsMicroserviceClient
 {
     private readonly HttpClient _httpClient;
 
-    public UserMicroserviceClient(HttpClient httpClient)
+    public ProductsMicroserviceClient(HttpClient httpClient)
     {
         _httpClient = httpClient;
     }
 
-    public async Task<UserDTO?> GetUserByID(Guid userID)
+    public async Task<ProductDTO?> GetProductByID(Guid productID)
     {
         try
         {
-            HttpResponseMessage response = await _httpClient.GetAsync($"/api/users/{userID}");
+            HttpResponseMessage response = await _httpClient.GetAsync($"/api/products/search/product-id/{productID}");
 
             if (!response.IsSuccessStatusCode)
             {
@@ -39,22 +40,22 @@ public class UserMicroserviceClient
                 }
             }
 
-            UserDTO? user = await response.Content.ReadFromJsonAsync<UserDTO>();
+            ProductDTO? product = await response.Content.ReadFromJsonAsync<ProductDTO>();
 
-            if (user == null)
+            if (product == null)
             {
-                throw new ArgumentException("Invalid user data");
+                throw new ArgumentException("Invalid product data");
             }
 
-            return user;
+            return product;
         }
         catch (HttpRequestException ex)
         {
-            throw new HttpRequestException($"Failed to connect to User Microservice at {_httpClient.BaseAddress}. Ensure the service is running and accessible. Details: {ex.Message}", ex);
+            throw new HttpRequestException($"Failed to connect to Product Microservice at {_httpClient.BaseAddress}. Ensure the service is running and accessible. Details: {ex.Message}", ex);
         }
         catch (TaskCanceledException ex)
         {
-            throw new HttpRequestException($"Request to User Microservice timed out at {_httpClient.BaseAddress}. The service may be unavailable.", ex);
+            throw new HttpRequestException($"Request to Product Microservice timed out at {_httpClient.BaseAddress}. The service may be unavailable.", ex);
         }
     }
 }

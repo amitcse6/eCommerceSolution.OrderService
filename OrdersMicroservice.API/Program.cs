@@ -3,6 +3,7 @@ using OrdersMicroservice.API.Middleware;
 using eCommerce.OrderMicroservice.DataAccessLayer;
 using eCommerce.OrderMicroservice.BusinessLogicLayer;
 using BusinessLogicLayer.HttpClients;
+using BusinessLogicLayer.Policy;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -32,14 +33,28 @@ builder.Services.AddCors(options =>
     });
 });
 
-builder.Services.AddHttpClient<UsersMicroserviceClient>(client =>
+builder.Services.AddSingleton<IUserMicroservicePolicy, UserMicroservicePolicy>();
+
+builder.Services.AddHttpClient<UsersMicroserviceClient>((serviceProvider, client) =>
 {
-    client.BaseAddress = new Uri($"http://{builder.Configuration["UsersMicroserviceName"]}:{builder.Configuration["UsersMicroservicePort"]}");
+    var configuration = serviceProvider.GetRequiredService<IConfiguration>();
+    client.BaseAddress = new Uri($"http://{configuration["UsersMicroserviceName"]}:{configuration["UsersMicroservicePort"]}");
+})
+.AddPolicyHandler((serviceProvider, request) =>
+{
+    var policy = serviceProvider.GetRequiredService<IUserMicroservicePolicy>();
+    return policy.GetRetryPolicy();
+})
+.AddPolicyHandler((serviceProvider, request) =>
+{
+    var policy = serviceProvider.GetRequiredService<IUserMicroservicePolicy>();
+    return policy.GetCircuitBreakerPolicy();
 });
 
-builder.Services.AddHttpClient<ProductsMicroserviceClient>(client =>
+builder.Services.AddHttpClient<ProductsMicroserviceClient>((serviceProvider, client) =>
 {
-    client.BaseAddress = new Uri($"http://{builder.Configuration["ProductsMicroserviceName"]}:{builder.Configuration["ProductsMicroservicePort"]}");
+    var configuration = serviceProvider.GetRequiredService<IConfiguration>();
+    client.BaseAddress = new Uri($"http://{configuration["ProductsMicroserviceName"]}:{configuration["ProductsMicroservicePort"]}");
 });
 
 var app = builder.Build();

@@ -36,11 +36,13 @@ builder.Services.AddCors(options =>
 
 // Create a single policy instance so circuit breaker state is shared
 builder.Services.AddSingleton<IUserMicroservicePolicy, UserMicroservicePolicy>();
+builder.Services.AddSingleton<IProductMicroservicePolicy, ProductMicroservicePolicy>();
 
 var serviceProvider = builder.Services.BuildServiceProvider();
 var userMicroservicePolicy = serviceProvider.GetRequiredService<IUserMicroservicePolicy>();
 var retryPolicy = userMicroservicePolicy.GetRetryPolicy();
 var circuitBreakerPolicy = userMicroservicePolicy.GetCircuitBreakerPolicy();
+var timeoutPolicy = userMicroservicePolicy.GetTimeoutPolicy();
 
 builder.Services.AddHttpClient<UsersMicroserviceClient>((serviceProvider, client) =>
 {
@@ -49,13 +51,16 @@ builder.Services.AddHttpClient<UsersMicroserviceClient>((serviceProvider, client
 })
 .AddPolicyHandler(retryPolicy)
 .AddPolicyHandler(circuitBreakerPolicy)
-;
+.AddPolicyHandler(timeoutPolicy);
+
+var fallbackPolicy = new ProductMicroservicePolicy(serviceProvider.GetRequiredService<ILogger<ProductMicroservicePolicy>>()).GetFallbackPolicy();
 
 builder.Services.AddHttpClient<ProductsMicroserviceClient>((serviceProvider, client) =>
 {
     var configuration = serviceProvider.GetRequiredService<IConfiguration>();
     client.BaseAddress = new Uri($"http://{configuration["ProductsMicroserviceName"]}:{configuration["ProductsMicroservicePort"]}");
-});
+})
+.AddPolicyHandler(fallbackPolicy);
 
 var app = builder.Build();
 

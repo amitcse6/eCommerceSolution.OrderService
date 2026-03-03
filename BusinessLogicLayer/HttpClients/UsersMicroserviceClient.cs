@@ -59,6 +59,10 @@ public class UsersMicroserviceClient
         {
             return _fallbackUser;
         }
+        catch (TimeoutException ex)
+        {
+            return _fallbackUser;
+        }
         catch (HttpRequestException ex) when (ex.StatusCode != System.Net.HttpStatusCode.BadRequest)
         {
             return _fallbackUser;

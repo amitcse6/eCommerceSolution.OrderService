@@ -6,4 +6,5 @@ public interface IUserMicroservicePolicy
 {
     IAsyncPolicy<HttpResponseMessage> GetRetryPolicy();
     IAsyncPolicy<HttpResponseMessage> GetCircuitBreakerPolicy();
+    IAsyncPolicy<HttpResponseMessage> GetTimeoutPolicy(); 
 }

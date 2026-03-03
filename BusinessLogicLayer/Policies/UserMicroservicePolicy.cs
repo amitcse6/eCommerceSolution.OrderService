@@ -2,6 +2,7 @@
 using Polly;
 using Polly.CircuitBreaker;
 using Polly.Retry;
+using Polly.Timeout;
 using System.Net;
 
 namespace BusinessLogicLayer.Policies;
@@ -51,5 +52,11 @@ public class UserMicroservicePolicy : IUserMicroservicePolicy
                 }
             );
         return retryPolicy;
+    }
+
+    public IAsyncPolicy<HttpResponseMessage> GetTimeoutPolicy()
+    {
+        AsyncTimeoutPolicy<HttpResponseMessage> policy = Policy.TimeoutAsync<HttpResponseMessage>(TimeSpan.FromMilliseconds(1500));
+        return policy;
     }
 }

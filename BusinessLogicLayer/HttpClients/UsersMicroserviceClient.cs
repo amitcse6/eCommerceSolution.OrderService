@@ -1,4 +1,5 @@
 ﻿using BusinessLogicLayer.DTO;
+using Polly.CircuitBreaker;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,6 +12,12 @@ namespace BusinessLogicLayer.HttpClients;
 public class UsersMicroserviceClient
 {
     private readonly HttpClient _httpClient;
+
+    private static readonly UserDTO _fallbackUser = new UserDTO(
+        PersonName: "Temporarily Unavailable",
+        Email: "Temporarily Unavailable",
+        Gender: "Temporarily Unavailable",
+        UserID: Guid.Empty);
 
     public UsersMicroserviceClient(HttpClient httpClient)
     {
@@ -35,11 +42,7 @@ public class UsersMicroserviceClient
                 }
                 else
                 {
-                    throw new HttpRequestException($"Http request failed with status code {response.StatusCode}");
-                    //return new UserDTO(PersonName: "Temporarily Unavailable",
-                    //    Email: "Temporarily Unavailable",
-                    //    Gender: "Temporarily Unavailable",
-                    //    UserID: Guid.Empty);
+                    return _fallbackUser;
                 }
             }
 
@@ -52,13 +55,17 @@ public class UsersMicroserviceClient
 
             return user;
         }
-        catch (HttpRequestException ex)
+        catch (BrokenCircuitException)
         {
-            throw new HttpRequestException($"Failed to connect to User Microservice at {_httpClient.BaseAddress}. Ensure the service is running and accessible. Details: {ex.Message}", ex);
+            return _fallbackUser;
         }
-        catch (TaskCanceledException ex)
+        catch (HttpRequestException ex) when (ex.StatusCode != System.Net.HttpStatusCode.BadRequest)
         {
-            throw new HttpRequestException($"Request to User Microservice timed out at {_httpClient.BaseAddress}. The service may be unavailable.", ex);
+            return _fallbackUser;
+        }
+        catch (TaskCanceledException)
+        {
+            return _fallbackUser;
         }
     }
 }

@@ -34,16 +34,21 @@ builder.Services.AddCors(options =>
     });
 });
 
-builder.Services.AddTransient<IUserMicroservicePolicy, UserMicroservicePolicy>();
+// Create a single policy instance so circuit breaker state is shared
+builder.Services.AddSingleton<IUserMicroservicePolicy, UserMicroservicePolicy>();
+
+var serviceProvider = builder.Services.BuildServiceProvider();
+var userMicroservicePolicy = serviceProvider.GetRequiredService<IUserMicroservicePolicy>();
+var retryPolicy = userMicroservicePolicy.GetRetryPolicy();
+var circuitBreakerPolicy = userMicroservicePolicy.GetCircuitBreakerPolicy();
 
 builder.Services.AddHttpClient<UsersMicroserviceClient>((serviceProvider, client) =>
 {
     var configuration = serviceProvider.GetRequiredService<IConfiguration>();
     client.BaseAddress = new Uri($"http://{configuration["UsersMicroserviceName"]}:{configuration["UsersMicroservicePort"]}");
 })
-.AddPolicyHandler(
-    builder.Services.BuildServiceProvider().GetRequiredService<IUserMicroservicePolicy>().GetRetryPolicy()
-)
+.AddPolicyHandler(retryPolicy)
+.AddPolicyHandler(circuitBreakerPolicy)
 ;
 
 builder.Services.AddHttpClient<ProductsMicroserviceClient>((serviceProvider, client) =>

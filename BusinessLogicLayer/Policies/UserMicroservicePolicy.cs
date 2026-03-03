@@ -1,7 +1,8 @@
-﻿
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 using Polly;
+using Polly.CircuitBreaker;
 using Polly.Retry;
+using System.Net;
 
 namespace BusinessLogicLayer.Policies;
 
@@ -17,7 +18,7 @@ public class UserMicroservicePolicy : IUserMicroservicePolicy
     public IAsyncPolicy<HttpResponseMessage> GetCircuitBreakerPolicy()
     {
         var circuitBreakerPolicy = Polly.Policy
-            .HandleResult<HttpResponseMessage>(r => !r.IsSuccessStatusCode)
+            .HandleResult<HttpResponseMessage>(r => (int)r.StatusCode >= 500)
             .CircuitBreakerAsync(
                 handledEventsAllowedBeforeBreaking: 2,
                 durationOfBreak: TimeSpan.FromSeconds(60),
@@ -36,7 +37,7 @@ public class UserMicroservicePolicy : IUserMicroservicePolicy
     public IAsyncPolicy<HttpResponseMessage> GetRetryPolicy()
     {
         AsyncRetryPolicy<HttpResponseMessage> retryPolicy = Polly.Policy
-            .HandleResult<HttpResponseMessage>(r => !r.IsSuccessStatusCode)
+            .HandleResult<HttpResponseMessage>(r => (int)r.StatusCode >= 500)
             .WaitAndRetryAsync(
                 retryCount: 3,
                 sleepDurationProvider: retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt)),

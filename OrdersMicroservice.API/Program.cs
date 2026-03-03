@@ -1,9 +1,10 @@
+using BusinessLogicLayer.HttpClients;
+using BusinessLogicLayer.Policies;
+using eCommerce.OrderMicroservice.BusinessLogicLayer;
+using eCommerce.OrderMicroservice.DataAccessLayer;
 using FluentValidation.AspNetCore;
 using OrdersMicroservice.API.Middleware;
-using eCommerce.OrderMicroservice.DataAccessLayer;
-using eCommerce.OrderMicroservice.BusinessLogicLayer;
-using BusinessLogicLayer.HttpClients;
-using BusinessLogicLayer.Policy;
+using Polly;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -33,23 +34,17 @@ builder.Services.AddCors(options =>
     });
 });
 
-builder.Services.AddSingleton<IUserMicroservicePolicy, UserMicroservicePolicy>();
+builder.Services.AddTransient<IUserMicroservicePolicy, UserMicroservicePolicy>();
 
 builder.Services.AddHttpClient<UsersMicroserviceClient>((serviceProvider, client) =>
 {
     var configuration = serviceProvider.GetRequiredService<IConfiguration>();
     client.BaseAddress = new Uri($"http://{configuration["UsersMicroserviceName"]}:{configuration["UsersMicroservicePort"]}");
 })
-.AddPolicyHandler((serviceProvider, request) =>
-{
-    var policy = serviceProvider.GetRequiredService<IUserMicroservicePolicy>();
-    return policy.GetRetryPolicy();
-})
-.AddPolicyHandler((serviceProvider, request) =>
-{
-    var policy = serviceProvider.GetRequiredService<IUserMicroservicePolicy>();
-    return policy.GetCircuitBreakerPolicy();
-});
+.AddPolicyHandler(
+    builder.Services.BuildServiceProvider().GetRequiredService<IUserMicroservicePolicy>().GetRetryPolicy()
+)
+;
 
 builder.Services.AddHttpClient<ProductsMicroserviceClient>((serviceProvider, client) =>
 {

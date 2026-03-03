@@ -1,7 +1,6 @@
-﻿
-using Polly;
+﻿using Polly;
 
-namespace BusinessLogicLayer.Policy;
+namespace BusinessLogicLayer.Policies;
 
 public interface IUserMicroservicePolicy
 {

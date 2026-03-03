@@ -1,8 +1,9 @@
-﻿using Polly;
-using Polly.Retry;
+﻿
 using Microsoft.Extensions.Logging;
+using Polly;
+using Polly.Retry;
 
-namespace BusinessLogicLayer.Policy;
+namespace BusinessLogicLayer.Policies;
 
 public class UserMicroservicePolicy : IUserMicroservicePolicy
 {
@@ -18,8 +19,8 @@ public class UserMicroservicePolicy : IUserMicroservicePolicy
         var circuitBreakerPolicy = Polly.Policy
             .HandleResult<HttpResponseMessage>(r => !r.IsSuccessStatusCode)
             .CircuitBreakerAsync(
-                handledEventsAllowedBeforeBreaking: 3,
-                durationOfBreak: TimeSpan.FromSeconds(120),
+                handledEventsAllowedBeforeBreaking: 2,
+                durationOfBreak: TimeSpan.FromSeconds(60),
                 onBreak: (outcome, timespan) =>
                 {
                     _logger.LogWarning(
@@ -32,7 +33,7 @@ public class UserMicroservicePolicy : IUserMicroservicePolicy
         return circuitBreakerPolicy;
     }
 
-    IAsyncPolicy<HttpResponseMessage> IUserMicroservicePolicy.GetRetryPolicy()
+    public IAsyncPolicy<HttpResponseMessage> GetRetryPolicy()
     {
         AsyncRetryPolicy<HttpResponseMessage> retryPolicy = Polly.Policy
             .HandleResult<HttpResponseMessage>(r => !r.IsSuccessStatusCode)

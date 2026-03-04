@@ -103,6 +103,16 @@ services:
     volumes:
       - ./../redis-cache:/data
 
+  apigateway:
+    image: apigateway:latest
+    build:
+      context: .
+      dockerfile: ApiGateway/Dockerfile
+    ports:
+      - "4000:8080"
+    networks:
+      - ecommerce-network
+
 networks:
   orders-mongo-network:
     driver: bridge

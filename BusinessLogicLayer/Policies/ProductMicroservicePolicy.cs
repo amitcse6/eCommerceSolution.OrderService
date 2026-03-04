@@ -48,7 +48,7 @@ public class ProductMicroservicePolicy : IProductMicroservicePolicy
                         0m
                     );
                     
-                    HttpResponseMessage fallbackResponse = new HttpResponseMessage(System.Net.HttpStatusCode.OK)
+                    HttpResponseMessage fallbackResponse = new HttpResponseMessage(System.Net.HttpStatusCode.ServiceUnavailable)
                     {
                         Content = new StringContent(
                             JsonSerializer.Serialize(product), 

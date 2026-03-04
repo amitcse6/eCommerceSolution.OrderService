@@ -43,7 +43,18 @@ public class ProductsMicroserviceClient
 
             if (!response.IsSuccessStatusCode)
             {
-                if (response.StatusCode == System.Net.HttpStatusCode.NotFound)
+                if (response.StatusCode == System.Net.HttpStatusCode.ServiceUnavailable)
+                {
+                    ProductDTO? productFromFallbackPolicy = await response.Content.ReadFromJsonAsync<ProductDTO>();
+
+                    if (productFromFallbackPolicy == null)
+                    {
+                        throw new NotImplementedException("Fallback policy did not provide a valid product.");
+                    }
+
+                    return productFromFallbackPolicy;
+                }
+                else if (response.StatusCode == System.Net.HttpStatusCode.NotFound)
                 {
                     return null;
                 }
@@ -64,11 +75,11 @@ public class ProductsMicroserviceClient
                 throw new ArgumentException("Invalid product data");
             }
 
-            // Cache the product data for 5 minutes
+            // Cache the data for 5 minutes
             await _distributedCache.SetStringAsync(cacheKey, System.Text.Json.JsonSerializer.Serialize(product), new DistributedCacheEntryOptions
             {
-                AbsoluteExpirationRelativeToNow = TimeSpan.FromSeconds(30),
-                SlidingExpiration = TimeSpan.FromSeconds(10)
+                AbsoluteExpiration = DateTimeOffset.UtcNow.AddMinutes(5),
+                SlidingExpiration = TimeSpan.FromMinutes(3)
             });
 
             return product;

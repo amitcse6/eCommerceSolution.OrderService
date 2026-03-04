@@ -1,4 +1,6 @@
 ﻿using BusinessLogicLayer.DTO;
+using eCommerce.OrdersMicroservice.BusinessLogicLayer.DTO;
+using Microsoft.Extensions.Caching.Distributed;
 using Polly.CircuitBreaker;
 using Polly.Timeout;
 using System;
@@ -13,6 +15,7 @@ namespace BusinessLogicLayer.HttpClients;
 public class UsersMicroserviceClient
 {
     private readonly HttpClient _httpClient;
+    private readonly IDistributedCache _distributedCache;
 
     private static readonly UserDTO _fallbackUser = new UserDTO(
         PersonName: "Temporarily Unavailable",
@@ -20,15 +23,23 @@ public class UsersMicroserviceClient
         Gender: "Temporarily Unavailable",
         UserID: Guid.Empty);
 
-    public UsersMicroserviceClient(HttpClient httpClient)
+    public UsersMicroserviceClient(HttpClient httpClient, IDistributedCache distributedCache)
     {
         _httpClient = httpClient;
+        _distributedCache = distributedCache;
     }
 
     public async Task<UserDTO?> GetUserByID(Guid userID)
     {
         try
         {
+            string cacheKey = $"user_{userID}";
+            string? cachedUser = await _distributedCache.GetStringAsync(cacheKey);
+            if (cachedUser != null)
+            {
+                return System.Text.Json.JsonSerializer.Deserialize<UserDTO>(cachedUser);
+            }
+
             HttpResponseMessage response = await _httpClient.GetAsync($"/api/users/{userID}");
 
             if (!response.IsSuccessStatusCode)
@@ -53,6 +64,13 @@ public class UsersMicroserviceClient
             {
                 throw new ArgumentException("Invalid user data");
             }
+
+            // Cache the data for 5 minutes
+            await _distributedCache.SetStringAsync(cacheKey, System.Text.Json.JsonSerializer.Serialize(user), new DistributedCacheEntryOptions
+            {
+                AbsoluteExpiration = DateTimeOffset.UtcNow.AddMinutes(5),
+                SlidingExpiration = TimeSpan.FromMinutes(3)
+            });
 
             return user;
         }

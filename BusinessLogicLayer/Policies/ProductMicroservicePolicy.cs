@@ -1,6 +1,7 @@
 ﻿using eCommerce.OrdersMicroservice.BusinessLogicLayer.DTO;
 using Microsoft.Extensions.Logging;
 using Polly;
+using Polly.Bulkhead;
 using Polly.Fallback;
 using System.Net.Http; // Ensure this is present
 using System.Text.Json;
@@ -16,6 +17,19 @@ public class ProductMicroservicePolicy : IProductMicroservicePolicy
     public ProductMicroservicePolicy(ILogger<ProductMicroservicePolicy> logger)
     {
         _logger = logger;
+    }
+
+    public IAsyncPolicy<HttpResponseMessage> GetBulkheadIsolationPolicy()
+    {
+        return Policy.BulkheadAsync<HttpResponseMessage>(
+            maxParallelization: 2,
+            maxQueuingActions: 40,
+            onBulkheadRejectedAsync: context =>
+            {
+                _logger.LogWarning("Bulkhead isolation triggered for Product Microservice. Context: {ContextKeyValues}", context);
+                throw new BulkheadRejectedException("Too many concurrent requests to Product Microservice. Please try again later.");
+            }
+        );
     }
 
     public IAsyncPolicy<HttpResponseMessage> GetFallbackPolicy()

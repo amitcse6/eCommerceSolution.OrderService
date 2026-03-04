@@ -1,5 +1,6 @@
 ﻿using BusinessLogicLayer.DTO;
 using Polly.CircuitBreaker;
+using Polly.Timeout;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -59,7 +60,11 @@ public class UsersMicroserviceClient
         {
             return _fallbackUser;
         }
-        catch (TimeoutException ex)
+        catch (TimeoutRejectedException)
+        {
+            return _fallbackUser;
+        }
+        catch (TimeoutException)
         {
             return _fallbackUser;
         }

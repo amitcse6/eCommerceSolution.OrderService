@@ -54,13 +54,15 @@ builder.Services.AddHttpClient<UsersMicroserviceClient>((serviceProvider, client
 .AddPolicyHandler(timeoutPolicy);
 
 var fallbackPolicy = new ProductMicroservicePolicy(serviceProvider.GetRequiredService<ILogger<ProductMicroservicePolicy>>()).GetFallbackPolicy();
+var bulkheadPolicy = new ProductMicroservicePolicy(serviceProvider.GetRequiredService<ILogger<ProductMicroservicePolicy>>()).GetBulkheadIsolationPolicy();
 
 builder.Services.AddHttpClient<ProductsMicroserviceClient>((serviceProvider, client) =>
 {
     var configuration = serviceProvider.GetRequiredService<IConfiguration>();
     client.BaseAddress = new Uri($"http://{configuration["ProductsMicroserviceName"]}:{configuration["ProductsMicroservicePort"]}");
 })
-.AddPolicyHandler(fallbackPolicy);
+.AddPolicyHandler(fallbackPolicy)
+.AddPolicyHandler(bulkheadPolicy);
 
 var app = builder.Build();
 

@@ -1,5 +1,6 @@
 ﻿using BusinessLogicLayer.DTO;
 using eCommerce.OrdersMicroservice.BusinessLogicLayer.DTO;
+using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Logging;
 using Polly.Bulkhead;
 using System;
@@ -15,17 +16,29 @@ public class ProductsMicroserviceClient
 {
     private readonly HttpClient _httpClient;
     readonly ILogger<ProductsMicroserviceClient> _logger;
+    readonly IDistributedCache _distributedCache;
 
-    public ProductsMicroserviceClient(HttpClient httpClient, ILogger<ProductsMicroserviceClient> logger)
+    public ProductsMicroserviceClient(
+        HttpClient httpClient,
+        ILogger<ProductsMicroserviceClient> logger,
+        IDistributedCache distributedCache)
     {
         _httpClient = httpClient;
         _logger = logger;
+        _distributedCache = distributedCache;
     }
 
     public async Task<ProductDTO?> GetProductByID(Guid productID)
     {
         try
         {
+            string cacheKey = $"product_{productID}";
+            string? cachedProduct = await _distributedCache.GetStringAsync(cacheKey);
+            if (cachedProduct != null)
+            {
+                return System.Text.Json.JsonSerializer.Deserialize<ProductDTO>(cachedProduct);
+            }
+
             HttpResponseMessage response = await _httpClient.GetAsync($"/api/products/search/product-id/{productID}");
 
             if (!response.IsSuccessStatusCode)
@@ -50,6 +63,13 @@ public class ProductsMicroserviceClient
             {
                 throw new ArgumentException("Invalid product data");
             }
+
+            // Cache the product data for 5 minutes
+            await _distributedCache.SetStringAsync(cacheKey, System.Text.Json.JsonSerializer.Serialize(product), new DistributedCacheEntryOptions
+            {
+                AbsoluteExpirationRelativeToNow = TimeSpan.FromSeconds(30),
+                SlidingExpiration = TimeSpan.FromSeconds(10)
+            });
 
             return product;
         }

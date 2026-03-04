@@ -40,6 +40,8 @@ builder.Services.AddSingleton<IProductMicroservicePolicy, ProductMicroservicePol
 
 var serviceProvider = builder.Services.BuildServiceProvider();
 var userMicroservicePolicy = serviceProvider.GetRequiredService<IUserMicroservicePolicy>();
+var productMicroservicePolicy = serviceProvider.GetRequiredService<IProductMicroservicePolicy>();
+
 var retryPolicy = userMicroservicePolicy.GetRetryPolicy();
 var circuitBreakerPolicy = userMicroservicePolicy.GetCircuitBreakerPolicy();
 var timeoutPolicy = userMicroservicePolicy.GetTimeoutPolicy();
@@ -53,8 +55,8 @@ builder.Services.AddHttpClient<UsersMicroserviceClient>((serviceProvider, client
 .AddPolicyHandler(circuitBreakerPolicy)
 .AddPolicyHandler(timeoutPolicy);
 
-var fallbackPolicy = new ProductMicroservicePolicy(serviceProvider.GetRequiredService<ILogger<ProductMicroservicePolicy>>()).GetFallbackPolicy();
-var bulkheadPolicy = new ProductMicroservicePolicy(serviceProvider.GetRequiredService<ILogger<ProductMicroservicePolicy>>()).GetBulkheadIsolationPolicy();
+var fallbackPolicy = productMicroservicePolicy.GetFallbackPolicy();
+var bulkheadPolicy = productMicroservicePolicy.GetBulkheadIsolationPolicy();
 
 builder.Services.AddHttpClient<ProductsMicroserviceClient>((serviceProvider, client) =>
 {

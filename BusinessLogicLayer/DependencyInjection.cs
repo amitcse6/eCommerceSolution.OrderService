@@ -24,6 +24,12 @@ public static class DependencyInjection
         services.AddAutoMapper(Assembly.GetExecutingAssembly());
 
         services.AddScoped<IOrdersService, OrdersService>();
+
+        services.AddStackExchangeRedisCache(options =>
+        {
+            options.Configuration = $"{Environment.GetEnvironmentVariable("REDIS_HOST")}:{Environment.GetEnvironmentVariable("REDIS_PORT")}";
+        });
+
         return services;
     }
 }

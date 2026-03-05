@@ -39,7 +39,7 @@ public class ProductsMicroserviceClient
                 return System.Text.Json.JsonSerializer.Deserialize<ProductDTO>(cachedProduct);
             }
 
-            HttpResponseMessage response = await _httpClient.GetAsync($"/api/products/search/product-id/{productID}");
+            HttpResponseMessage response = await _httpClient.GetAsync($"/gateway/products/search/product-id/{productID}");
 
             if (!response.IsSuccessStatusCode)
             {

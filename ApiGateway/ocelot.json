@@ -85,7 +85,7 @@
           "Port": 8080
         }
       ],
-      "UpstreamHttpMethod": [ "Get", "Post", "Options" ],
+      "UpstreamHttpMethod": [ "Get", "Post", "Put", "Options" ],
       "UpstreamScheme": "http",
       "QoSOptions": {
         "ExceptionsAllowedBeforeBreaking": 3,

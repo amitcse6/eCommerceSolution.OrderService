@@ -121,7 +121,7 @@
       "UpstreamScheme": "http"
     },
     {
-      "UpstreamPathTemplate": "/gateway/auth/register",
+      "UpstreamPathTemplate": "/gateway/users/auth/register",
       "DownstreamPathTemplate": "/api/auth/register",
       "DownstreamHostAndPorts": [
         {
@@ -133,7 +133,7 @@
       "UpstreamScheme": "http"
     },
     {
-      "UpstreamPathTemplate": "/gateway/auth/login",
+      "UpstreamPathTemplate": "/gateway/users/auth/login",
       "DownstreamPathTemplate": "/api/auth/login",
       "DownstreamHostAndPorts": [
         {

@@ -44,7 +44,7 @@ public class RabbitMQProductNameUpdateConsumer : IRabbitMQProductNameUpdateConsu
 
     public void Comsumer()
     {
-        string routingKey = "product.update.name";
+        string routingKey = "product.updated.name";
         string queueName = "orders.product.update.name.queue";
 
         string exchangeName = _configuration["RabbitMQ_Products_Exchange"]!;

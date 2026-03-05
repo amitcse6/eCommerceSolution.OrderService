@@ -10,7 +10,11 @@
         }
       ],
       "UpstreamHttpMethod": [ "Get", "Post", "Options" ],
-      "UpstreamScheme": "http"
+      "UpstreamScheme": "http",
+      "FileCacheOptions": {
+        "TtlSeconds": 30,
+        "Region": "orders"
+      }
     },
     {
       "UpstreamPathTemplate": "/gateway/Orders/search/orderid/{orderID}",
@@ -82,7 +86,24 @@
         }
       ],
       "UpstreamHttpMethod": [ "Get", "Post", "Options" ],
-      "UpstreamScheme": "http"
+      "UpstreamScheme": "http",
+      "QoSOptions": {
+        "ExceptionsAllowedBeforeBreaking": 3,
+        "DurationOfBreak": 10000,
+        "TimeoutValue": 5000
+      },
+      "RetryOptions": {
+        "RetryCount": 3,
+        "RetryOnServerError": true
+      },
+      "RateLimitOptions": {
+        "ClientWhitelist": [ "Client1", "Client2" ],
+        "EnableRateLimiting": true,
+        "Period": "1m",
+        "PeriodTimespan": 60,
+        "Limit": 3,
+        "ClientIdHeader": "Client-Id"
+      }
     },
     {
       "UpstreamPathTemplate": "/gateway/Products/{productID}",
